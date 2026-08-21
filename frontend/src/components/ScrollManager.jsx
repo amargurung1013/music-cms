@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import { useLocation, useNavigationType } from 'react-router-dom'
 
 const STORAGE_KEY = 'music-cms-scroll-positions'
@@ -9,11 +9,8 @@ export default function ScrollManager() {
   const positions = useRef(loadPositions())
 
   useEffect(() => {
+    // Keep the browser from restoring a competing position on mobile Safari.
     if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'
-
-    return () => {
-      window.history.scrollRestoration = 'auto'
-    }
   }, [])
 
   useEffect(() => {
@@ -23,30 +20,46 @@ export default function ScrollManager() {
     }
 
     window.addEventListener('scroll', savePosition, { passive: true })
+    window.addEventListener('pagehide', savePosition)
     return () => {
       savePosition()
       window.removeEventListener('scroll', savePosition)
+      window.removeEventListener('pagehide', savePosition)
     }
   }, [location.key])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const savedPosition = navigationType === 'POP' ? positions.current[location.key] : null
     if (!savedPosition) {
       window.scrollTo(0, 0)
       return undefined
     }
 
-    let attempts = 0
+    let frameId
+    let observer
+    let timeoutId
     const restore = () => {
       window.scrollTo(savedPosition.x, savedPosition.y)
-      attempts += 1
-      if (attempts < 60 && document.documentElement.scrollHeight < savedPosition.y + window.innerHeight) {
-        timer = window.setTimeout(restore, 50)
+      // Data-backed pages can grow after the route has changed. Keep trying
+      // until the saved point exists, rather than restoring to the top once.
+      if (document.documentElement.scrollHeight < savedPosition.y + window.innerHeight) {
+        frameId = window.requestAnimationFrame(restore)
       }
     }
 
-    let timer = window.setTimeout(restore, 0)
-    return () => window.clearTimeout(timer)
+    frameId = window.requestAnimationFrame(restore)
+    observer = new MutationObserver(restore)
+    observer.observe(document.body, { childList: true, subtree: true })
+    timeoutId = window.setTimeout(() => {
+      observer.disconnect()
+      window.cancelAnimationFrame(frameId)
+    }, 10000)
+
+    return () => {
+      window.cancelAnimationFrame(frameId)
+      window.clearTimeout(timeoutId)
+      observer?.disconnect()
+    }
   }, [location.key, navigationType])
 
   return null
