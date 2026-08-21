@@ -89,18 +89,3 @@ class RandomLyric(BaseModel):
 
 class AlbumDetail(AlbumSummary):
     songs: list[SongRead]
-
-
-class ChatMessage(BaseModel):
-    role: str = Field(pattern="^(user|assistant)$")
-    content: str = Field(min_length=1, max_length=4000)
-
-
-class AskAIRequest(BaseModel):
-    message: str = Field(min_length=1, max_length=4000)
-    history: list[ChatMessage] = Field(default_factory=list, max_length=20)
-
-
-class AskAIResponse(BaseModel):
-    answer: str
-    sources: list[str]

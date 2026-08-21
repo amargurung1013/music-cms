@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
 from .database import Base, SessionLocal, engine
-from .routes import ai, albums, search, songs
+from .routes import albums, search, songs
 from .seed import seed_database
 
 
@@ -50,7 +50,6 @@ app.add_middleware(
 app.include_router(albums.router)
 app.include_router(songs.router)
 app.include_router(search.router)
-app.include_router(ai.router)
 
 
 @app.exception_handler(RequestValidationError)
