@@ -2,9 +2,8 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const EDIT_AUTH_KEY = 'music-cms-edit-authenticated'
-const EDIT_FAILED_KEY = 'music-cms-edit-login-failed'
 
-export { EDIT_AUTH_KEY, EDIT_FAILED_KEY }
+export { EDIT_AUTH_KEY }
 
 export default function EditLogin() {
   const navigate = useNavigate()
@@ -23,7 +22,6 @@ export default function EditLogin() {
       return
     }
 
-    sessionStorage.setItem(EDIT_FAILED_KEY, 'true')
     navigate('/discography', { replace: true })
   }
 

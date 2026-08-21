@@ -8,7 +8,7 @@ import EditCollection from './pages/EditCollection'
 import ArrangeCollection from './pages/ArrangeCollection'
 import SearchPage from './pages/SearchPage'
 import AskAI from './pages/AskAI'
-import EditLogin, { EDIT_AUTH_KEY, EDIT_FAILED_KEY } from './pages/EditLogin'
+import EditLogin, { EDIT_AUTH_KEY } from './pages/EditLogin'
 import ScrollManager from './components/ScrollManager'
 
 export default function App() {
@@ -41,7 +41,6 @@ export default function App() {
   }, [isAdminRoute])
 
   if (isProtectedRoute && sessionStorage.getItem(EDIT_AUTH_KEY) !== 'true') {
-    if (sessionStorage.getItem(EDIT_FAILED_KEY) === 'true') return <Navigate to="/discography" replace />
     return <EditLogin />
   }
 
