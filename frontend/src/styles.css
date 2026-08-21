@@ -17,6 +17,8 @@
 }
 
 * { box-sizing: border-box; }
+.public-content-protected main { user-select: none; -webkit-user-select: none; }
+.public-content-protected input, .public-content-protected textarea, .public-content-protected select { user-select: text; -webkit-user-select: text; }
 body { margin: 0; min-width: 320px; min-height: 100vh; background: var(--charcoal); }
 a { color: inherit; }
 a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
