@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, NavLink, useNavigate, useSearchParams } from 'react-router-dom'
 import { api, patch, post, remove } from '../api'
 import StateMessage from '../components/StateMessage'
 import SelectField from '../components/SelectField'
@@ -220,16 +220,16 @@ export default function EditCollection({ section = 'all' }) {
     <main className="editor-page">
       <p className="eyebrow">Private editor</p><h1>{pageTitle}</h1>
       <p className="editor-intro">Add an album first, then select it to add, edit, or remove tracks and lyrics. Everything saves directly to your archive.</p>
-      <nav className="editor-subnav" aria-label="Collection editor sections">
-        <Link to="/edit/albums">01 — Add album</Link>
-        <Link to="/edit/albums/versions">01b — Add version</Link>
-        <Link to="/edit/songs">02 — Add song</Link>
-        <Link to="/edit/saved/standard">03 — Saved albums</Link>
-        <Link to="/edit/albums/edit">04 — Edit album</Link>
-        <Link to="/edit/songs/edit">05 — Edit song</Link>
-        <Link to="/edit/albums/delete">06 — Delete album</Link>
-        <Link to="/edit/songs/delete">07 — Delete song</Link>
-      </nav>
+      <div className="editor-layout">
+        <aside className="editor-sidebar">
+          <p className="editor-nav-title">Editor menu</p>
+          <nav className="editor-nav" aria-label="Collection editor sections">
+            <div className="editor-nav-group"><span className="editor-nav-label">Create</span><NavLink to="/edit/albums" end>01 — Add album</NavLink><NavLink to="/edit/albums/versions">01b — Add version</NavLink><NavLink to="/edit/songs">02 — Add song</NavLink></div>
+            <div className="editor-nav-group"><span className="editor-nav-label">Manage</span><NavLink to="/edit/saved/standard">03 — Saved albums</NavLink><NavLink to="/edit/albums/edit">04 — Edit album</NavLink><NavLink to="/edit/songs/edit">05 — Edit song</NavLink></div>
+            <div className="editor-nav-group"><span className="editor-nav-label">Remove</span><NavLink to="/edit/albums/delete">06 — Delete album</NavLink><NavLink to="/edit/songs/delete">07 — Delete song</NavLink></div>
+          </nav>
+        </aside>
+        <div className="editor-content">
       {section === 'versions' && <section className="editor-section single-editor-section"><p className="eyebrow">01b — Album version</p><h2>Add an album version</h2><p className="editor-intro">Choose an album, name its new version, and optionally provide different artwork. Leave artwork blank to reuse the selected album’s cover.</p><form onSubmit={addVersion}><SelectField label="Album" required value={versionAlbumId} onChange={setVersionAlbumId} placeholder="Choose an album" options={baseAlbums.map((album) => ({ value: album.id, label: album.title }))} /><label>Version name<input required placeholder="Deluxe, Merry Edition, Acoustic…" value={versionName} onChange={(event) => setVersionName(event.target.value)} /></label><label>Version artwork URL <span>optional — base artwork is used when blank</span><input type="url" placeholder="https://…" value={versionCover} onChange={(event) => setVersionCover(event.target.value)} /></label><div className="form-actions"><button type="submit">Create version</button></div></form></section>}
       {(section === 'saved' || section === 'saved-standard' || section === 'saved-deluxe') && <nav className="editor-subnav" aria-label="Saved album sections"><Link className={savedEdition === 'standard' ? 'active' : ''} to="/edit/saved/standard">Standard albums</Link><Link className={savedEdition === 'deluxe' ? 'active' : ''} to="/edit/saved/deluxe">Deluxe albums</Link></nav>}
       {message && <StateMessage>{message}</StateMessage>}{error && <StateMessage error>{error}</StateMessage>}
@@ -262,6 +262,8 @@ export default function EditCollection({ section = 'all' }) {
         <summary><span className="eyebrow">03 — Collection</span><h2>Saved albums</h2></summary>
         {savedAlbums.length === 0 ? <p className="empty-tracks">No {savedEdition} albums saved yet.</p> : <div className="album-order">{savedAlbums.map((album) => <div className="saved-song" key={album.id}><span>{album.title}</span><div><button type="button" className="text-button" onClick={() => editAlbum(album)}>Edit</button><button type="button" className="text-button delete-button" onClick={() => deleteAlbum(album)}>Delete</button></div></div>)}</div>}
       </details>}
+        </div>
+      </div>
     </main>
   )
 }
