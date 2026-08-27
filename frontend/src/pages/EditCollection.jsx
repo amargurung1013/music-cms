@@ -25,6 +25,10 @@ export default function EditCollection({ section = 'all' }) {
   const [editSongAlbumSelection, setEditSongAlbumSelection] = useState('')
   const [editSongSelection, setEditSongSelection] = useState('')
   const [editSongs, setEditSongs] = useState([])
+  const [deleteAlbumSelection, setDeleteAlbumSelection] = useState('')
+  const [deleteSongAlbumSelection, setDeleteSongAlbumSelection] = useState('')
+  const [deleteSongSelection, setDeleteSongSelection] = useState('')
+  const [deleteSongs, setDeleteSongs] = useState([])
   const [songs, setSongs] = useState([])
   const [editingId, setEditingId] = useState(null)
   const [editingAlbumId, setEditingAlbumId] = useState(null)
@@ -69,6 +73,10 @@ export default function EditCollection({ section = 'all' }) {
     if (!editSongAlbumSelection) return setEditSongs([])
     api(`/albums/${editSongAlbumSelection}`).then((album) => setEditSongs(album.songs)).catch((err) => setError(err.message))
   }, [editSongAlbumSelection])
+  useEffect(() => {
+    if (!deleteSongAlbumSelection) return setDeleteSongs([])
+    api(`/albums/${deleteSongAlbumSelection}`).then((album) => setDeleteSongs(album.songs)).catch((err) => setError(err.message))
+  }, [deleteSongAlbumSelection])
 
   async function addAlbum(event) {
     event.preventDefault(); setError(''); setMessage('')
@@ -184,6 +192,21 @@ export default function EditCollection({ section = 'all' }) {
     } catch (err) { setError(err.message) }
   }
 
+  async function deleteSelectedAlbum() {
+    const album = albums.find((item) => item.id === Number(deleteAlbumSelection))
+    if (!album) return setError('Choose an album version first.')
+    await deleteAlbum(album)
+    setDeleteAlbumSelection('')
+  }
+
+  async function deleteSelectedSong() {
+    const song = deleteSongs.find((item) => item.id === Number(deleteSongSelection))
+    if (!song) return setError('Choose a song first.')
+    await deleteSong(song)
+    setDeleteSongSelection('')
+    setDeleteSongs((current) => current.filter((item) => item.id !== song.id))
+  }
+
   const savedEdition = section === 'saved-deluxe' ? 'deluxe' : 'standard'
   const savedAlbums = albums.filter((album) => (album.edition_type ?? 'standard') === savedEdition)
   const songAlbums = albums
@@ -191,7 +214,7 @@ export default function EditCollection({ section = 'all' }) {
   const editSongAlbumOptions = albums
   const standardAlbumsWithoutDeluxe = albums.filter((album) => (album.edition_type ?? 'standard') === 'standard' && !albums.some((candidate) => (candidate.edition_type ?? 'standard') === 'deluxe' && candidate.title.trim().toLocaleLowerCase() === album.title.trim().toLocaleLowerCase()))
   const baseAlbums = albums.filter((album) => (album.edition_type ?? 'standard') === 'standard' && !album.base_album_id)
-  const pageTitle = section === 'album' ? 'Add a Standard album' : section === 'versions' ? 'Add an album version' : section === 'deluxe' ? 'Add a Deluxe version' : section === 'song' ? 'Add a song' : section === 'edit-album' ? 'Edit an album' : section === 'edit-song' ? 'Edit a song' : section === 'saved-deluxe' ? 'Saved deluxe albums' : section === 'saved-standard' ? 'Saved standard albums' : section === 'saved' ? 'Saved albums' : 'Edit collection'
+  const pageTitle = section === 'album' ? 'Add a Standard album' : section === 'versions' ? 'Add an album version' : section === 'deluxe' ? 'Add a Deluxe version' : section === 'song' ? 'Add a song' : section === 'edit-album' ? 'Edit an album' : section === 'edit-song' ? 'Edit a song' : section === 'delete-album' ? 'Delete an album' : section === 'delete-song' ? 'Delete a song' : section === 'saved-deluxe' ? 'Saved deluxe albums' : section === 'saved-standard' ? 'Saved standard albums' : section === 'saved' ? 'Saved albums' : 'Edit collection'
 
   return (
     <main className="editor-page">
@@ -204,6 +227,8 @@ export default function EditCollection({ section = 'all' }) {
         <Link to="/edit/saved/standard">03 — Saved albums</Link>
         <Link to="/edit/albums/edit">04 — Edit album</Link>
         <Link to="/edit/songs/edit">05 — Edit song</Link>
+        <Link to="/edit/albums/delete">06 — Delete album</Link>
+        <Link to="/edit/songs/delete">07 — Delete song</Link>
       </nav>
       {section === 'versions' && <section className="editor-section single-editor-section"><p className="eyebrow">01b — Album version</p><h2>Add an album version</h2><p className="editor-intro">Choose an album, name its new version, and optionally provide different artwork. Leave artwork blank to reuse the selected album’s cover.</p><form onSubmit={addVersion}><SelectField label="Album" required value={versionAlbumId} onChange={setVersionAlbumId} placeholder="Choose an album" options={baseAlbums.map((album) => ({ value: album.id, label: album.title }))} /><label>Version name<input required placeholder="Deluxe, Merry Edition, Acoustic…" value={versionName} onChange={(event) => setVersionName(event.target.value)} /></label><label>Version artwork URL <span>optional — base artwork is used when blank</span><input type="url" placeholder="https://…" value={versionCover} onChange={(event) => setVersionCover(event.target.value)} /></label><div className="form-actions"><button type="submit">Create version</button></div></form></section>}
       {(section === 'saved' || section === 'saved-standard' || section === 'saved-deluxe') && <nav className="editor-subnav" aria-label="Saved album sections"><Link className={savedEdition === 'standard' ? 'active' : ''} to="/edit/saved/standard">Standard albums</Link><Link className={savedEdition === 'deluxe' ? 'active' : ''} to="/edit/saved/deluxe">Deluxe albums</Link></nav>}
@@ -212,6 +237,8 @@ export default function EditCollection({ section = 'all' }) {
             <label>Album title<input required value={albumForm.title} onChange={(e) => setAlbumForm({ ...albumForm, title: e.target.value })} /></label><label>Version name<input required value={albumForm.version_name ?? ''} onChange={(e) => setAlbumForm({ ...albumForm, version_name: e.target.value })} /></label><label>Release year or date<input value={albumForm.release_date} onChange={(e) => setAlbumForm({ ...albumForm, release_date: e.target.value })} /></label><label>Artwork URL <span>optional</span><input type="url" value={albumForm.cover_image} onChange={(e) => setAlbumForm({ ...albumForm, cover_image: e.target.value })} /></label><label>Album description <span>optional</span><textarea rows="4" value={albumForm.description} onChange={(e) => setAlbumForm({ ...albumForm, description: e.target.value })} /></label><div className="form-actions"><button type="submit">Save changes</button><button type="button" className="secondary-button" onClick={cancelAlbumEdit}>Cancel</button></div>
           </form>}</section>}
       {section === 'edit-song' && <section className="editor-section single-editor-section"><p className="eyebrow">05 — Edit song</p><h2>Choose a song to edit</h2><SelectField label="Album version" value={editSongAlbumSelection} onChange={(value) => { setEditSongAlbumSelection(value); setEditSongSelection(''); setEditingId(null) }} placeholder="Choose an album version" options={editSongAlbumOptions.map((album) => ({ value: album.id, label: `${album.title} — ${album.version_name ?? ((album.edition_type ?? 'standard') === 'deluxe' ? 'Deluxe' : 'Standard')}` }))} />{editSongAlbumSelection && <SelectField label="Song" value={editSongSelection} onChange={selectSongToEdit} placeholder="Choose a song" options={editSongs.map((song) => ({ value: song.id, label: `${song.track_number}. ${song.title}` }))} />}{editingId && <form onSubmit={saveSong}><label>Song title<input required value={songForm.title} onChange={(e) => setSongForm({ ...songForm, title: e.target.value })} /></label><label>Track number<input min="1" type="number" value={songForm.track_number} onChange={(e) => setSongForm({ ...songForm, track_number: e.target.value })} /></label><label>Lyrics<textarea required rows="10" value={songForm.lyrics} onChange={(e) => setSongForm({ ...songForm, lyrics: e.target.value })} /></label><div className="form-actions"><button type="submit">Save changes</button><button type="button" className="secondary-button" onClick={cancelEdit}>Cancel</button></div></form>}</section>}
+      {section === 'delete-album' && <section className="editor-section single-editor-section"><p className="eyebrow">06 — Delete album</p><h2>Choose an album to delete</h2><p className="editor-intro">Deleting an album permanently deletes every song inside that album.</p><SelectField label="Album version" value={deleteAlbumSelection} onChange={(value) => { setDeleteAlbumSelection(value); setError('') }} placeholder="Choose an album version" options={albums.map((album) => ({ value: album.id, label: `${album.title} — ${album.version_name ?? ((album.edition_type ?? 'standard') === 'deluxe' ? 'Deluxe' : 'Standard')}` }))} />{deleteAlbumSelection && <div className="form-actions"><button type="button" className="delete-action-button" onClick={deleteSelectedAlbum}>Delete album and all songs</button></div>}</section>}
+      {section === 'delete-song' && <section className="editor-section single-editor-section"><p className="eyebrow">07 — Delete song</p><h2>Choose a song to delete</h2><SelectField label="Album version" value={deleteSongAlbumSelection} onChange={(value) => { setDeleteSongAlbumSelection(value); setDeleteSongSelection(''); setError('') }} placeholder="Choose an album version" options={albums.map((album) => ({ value: album.id, label: `${album.title} — ${album.version_name ?? ((album.edition_type ?? 'standard') === 'deluxe' ? 'Deluxe' : 'Standard')}` }))} />{deleteSongAlbumSelection && <SelectField label="Song" value={deleteSongSelection} onChange={(value) => { setDeleteSongSelection(value); setError('') }} placeholder="Choose a song" options={deleteSongs.map((song) => ({ value: song.id, label: `${song.track_number}. ${song.title}` }))} />}{deleteSongSelection && <div className="form-actions"><button type="button" className="delete-action-button" onClick={deleteSelectedSong}>Delete song</button></div>}</section>}
       {(section === 'all' || section === 'album') && <section className="editor-section single-editor-section" id="add-album"><p className="eyebrow">01 — Album</p><h2>{editingAlbumId ? 'Edit album' : 'Add an album'}</h2>
           <form onSubmit={addAlbum}>
             <label>Album title<input required value={albumForm.title} onChange={(e) => setAlbumForm({ ...albumForm, title: e.target.value })} /></label>
