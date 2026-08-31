@@ -28,6 +28,6 @@ function cleanLyrics(lyrics, fallback) {
 export default function LyricMarquee({ lyric }) {
   if (!lyric) return null
   const text = cleanLyrics(lyric.lyrics || lyric.lyric, lyric.title)
-  const palette = marqueePalettes[lyric.album_title.trim().toLocaleLowerCase()] || ['var(--surface)', 'var(--blue-soft)']
+  const palette = marqueePalettes[lyric.album_title.trim().toLocaleLowerCase()] || ['var(--charcoal)', 'var(--blue-soft)']
   return <section className="lyric-marquee-section" style={{ '--marquee-bg': palette[0], '--marquee-text': palette[1] }} aria-label="Scrolling lyrics"><div className="lyric-marquee"><Link className="lyric-marquee-track" to={`/albums/${lyric.album_id}/songs/${lyric.id}`}><span>{text}</span><span aria-hidden="true">{text}</span></Link></div></section>
 }
