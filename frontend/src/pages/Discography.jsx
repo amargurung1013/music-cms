@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import AlbumCard from '../components/AlbumCard'
 import StateMessage from '../components/StateMessage'
 import { api } from '../api'
@@ -22,12 +23,14 @@ export default function Discography() {
     }, new Map()).values(),
   )
   return (
-    <main>
+    <main className="discography-page">
       <DailyLyric />
-      <section className="intro"><p className="eyebrow">Collection / Discography</p><h1>Discography</h1></section>
-      {error && <StateMessage error>{error}</StateMessage>}
-      {!albums && !error && <StateMessage>Loading albums…</StateMessage>}
-      {albums && (visibleAlbums.length ? <section className="album-grid">{visibleAlbums.map((album) => <AlbumCard key={album.id} album={album} />)}</section> : <StateMessage>No albums have been added yet.</StateMessage>)}
+      {visibleAlbums?.length > 0 && <aside className="album-sidebar" aria-label="Album navigation"><span className="album-sidebar-label">Albums</span><nav>{visibleAlbums.map((album, index) => <Link key={album.id} to={`/albums/${album.id}`}><span>{String(index + 1).padStart(2, '0')}</span>{album.title}</Link>)}</nav></aside>}
+      <div className="discography-content">
+        {error && <StateMessage error>{error}</StateMessage>}
+        {!albums && !error && <StateMessage>Loading albums…</StateMessage>}
+        {albums && (visibleAlbums.length ? <section className="album-grid">{visibleAlbums.map((album) => <AlbumCard key={album.id} album={album} />)}</section> : <StateMessage>No albums have been added yet.</StateMessage>)}
+      </div>
     </main>
   )
 }
