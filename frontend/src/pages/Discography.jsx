@@ -4,12 +4,15 @@ import AlbumCard from '../components/AlbumCard'
 import StateMessage from '../components/StateMessage'
 import { api } from '../api'
 import DailyLyric from '../components/DailyLyric'
+import LyricMarquee from '../components/LyricMarquee'
 
 export default function Discography() {
   const [albums, setAlbums] = useState(null)
+  const [lyric, setLyric] = useState(null)
   const [error, setError] = useState('')
 
   useEffect(() => { api('/albums').then(setAlbums).catch((err) => setError(err.message)) }, [])
+  useEffect(() => { api('/songs/random-lyric').then(setLyric).catch(() => setLyric(null)) }, [])
 
   const visibleAlbums = albums && Array.from(
     albums.reduce((groups, album, _, allAlbums) => {
@@ -24,7 +27,8 @@ export default function Discography() {
   )
   return (
     <main className="discography-page">
-      <DailyLyric />
+      <DailyLyric lyric={lyric} />
+      <LyricMarquee lyric={lyric} />
       {visibleAlbums?.length > 0 && <aside className="album-sidebar" aria-label="Album navigation"><span className="album-sidebar-label">Albums</span><nav>{visibleAlbums.map((album, index) => <Link key={album.id} to={`/albums/${album.id}`}><span>{String(index + 1).padStart(2, '0')}</span>{album.title}</Link>)}</nav></aside>}
       <div className="discography-content">
         {error && <StateMessage error>{error}</StateMessage>}

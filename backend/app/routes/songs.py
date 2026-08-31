@@ -23,7 +23,8 @@ def random_lyric(db: Session = Depends(get_db)) -> RandomLyric:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No songs found")
     song, album_title, cover_image = row
     lines = [line.strip() for line in song.lyrics.splitlines() if line.strip() and not line.strip().startswith('[')]
-    return RandomLyric(id=song.id, album_id=song.album_id, title=song.title, album_title=album_title, album_cover_image=cover_image, lyric=random.choice(lines or [song.lyrics]))
+    full_lyrics = ' • '.join(lines) or song.title
+    return RandomLyric(id=song.id, album_id=song.album_id, title=song.title, album_title=album_title, album_cover_image=cover_image, lyric=random.choice(lines or [song.lyrics]), lyrics=full_lyrics)
 
 
 @router.get("/recommended", response_model=list[SongRecommendation])

@@ -85,6 +85,7 @@ class RandomLyric(BaseModel):
     album_title: str
     album_cover_image: str | None
     lyric: str
+    lyrics: str
 
 
 class AlbumDetail(AlbumSummary):
