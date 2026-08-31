@@ -29,7 +29,7 @@ export default function Discography() {
     <main className="discography-page">
       <DailyLyric lyric={lyric} />
       <LyricMarquee lyric={lyric} />
-      {visibleAlbums?.length > 0 && <aside className="album-sidebar" aria-label="Album navigation"><span className="album-sidebar-label">Albums</span><nav>{visibleAlbums.map((album, index) => <Link key={album.id} to={`/albums/${album.id}`}><span>{String(index + 1).padStart(2, '0')}</span>{album.title}</Link>)}</nav></aside>}
+      {visibleAlbums?.length > 0 && <aside className="album-sidebar" aria-label="Album navigation"><span className="album-sidebar-label">Albums</span><nav>{visibleAlbums.map((album) => <Link key={album.id} to={`/albums/${album.id}`}>{album.title}</Link>)}</nav></aside>}
       <div className="discography-content">
         {error && <StateMessage error>{error}</StateMessage>}
         {!albums && !error && <StateMessage>Loading albums…</StateMessage>}
