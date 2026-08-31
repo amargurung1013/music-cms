@@ -116,9 +116,15 @@ h2 { margin: 18px 0 6px; font-size: 1.45rem; line-height: 1.15; }
 .song-tracklist-section:hover .eyebrow, .song-tracklist-section:focus-within .eyebrow { writing-mode: horizontal-tb; transform: none; margin-bottom: 8px; }
 .song-tracklist-section h2 { flex: 0 0 auto; max-width: 100%; margin: 0; padding: 0 18px; font-size: clamp(1.25rem, 2.5vw, 2rem); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; opacity: 0; transition: opacity .12s ease .06s; }
 .song-tracklist-section:hover h2, .song-tracklist-section:focus-within h2 { margin-bottom: 18px; opacity: 1; }
-.song-tracklist-section .track-list { display: none; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 28px; margin: 0; padding: 0 18px 0 3em; overflow-y: auto; }
+.song-tracklist-section .track-list { display: none; grid-template-columns: 1fr; margin: 0; padding: 0 18px 0 3em; overflow-y: auto; }
+.song-tracklist-section .track-list { scrollbar-color: var(--blue) transparent; scrollbar-width: thin; }
+.song-tracklist-section .track-list::-webkit-scrollbar { width: 7px; }
+.song-tracklist-section .track-list::-webkit-scrollbar-track { margin: 4px 0; border-radius: 99px; background: rgba(169, 200, 255, .08); }
+.song-tracklist-section .track-list::-webkit-scrollbar-thumb { border: 1px solid rgba(20, 22, 24, .7); border-radius: 99px; background: var(--blue); }
+.song-tracklist-section .track-list::-webkit-scrollbar-thumb:hover { background: var(--blue-soft); }
 .song-tracklist-section:hover .track-list, .song-tracklist-section:focus-within .track-list { display: grid; }
 .song-tracklist-section .track-list li { min-width: 0; }
+.song-tracklist-section .track-list li:last-child { border-bottom: 0; }
 mark { border-radius: 2px; background: var(--blue); color: #071526; padding: 1px 2px; }
 .state-message { max-width: 650px; margin: 0 0 22px; padding: 12px 14px; color: var(--blue-soft); border-left: 3px solid var(--blue); background: rgba(77, 141, 255, .1); font-size: 12px; line-height: 1.5; }.state-message.error { color: var(--danger); border-color: var(--danger); background: rgba(255, 154, 154, .08); }
 .editor-page, .ordering-page { max-width: 1080px; }.single-editor-section { max-width: 720px; }.editor-page h1, .ordering-page h1 { font-size: clamp(2.6rem, 5vw, 4.8rem); }.editor-intro { max-width: 560px; margin: 30px 0 28px; color: var(--muted); line-height: 1.7; }.editor-subnav { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 60px; }.intro .editor-subnav { margin-top: 24px; }.editor-subnav a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); color: var(--blue-soft); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; text-decoration: none; transition: color .15s ease, background .15s ease, border-color .15s ease, transform .15s ease; }.editor-subnav a:hover { border-color: var(--blue); background: var(--surface-raised); color: var(--white); transform: translateY(-2px); }.editor-subnav a.active { border-color: var(--blue); background: rgba(77, 141, 255, .16); color: var(--white); box-shadow: inset 0 -2px 0 var(--blue); }.editor-subnav a:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
